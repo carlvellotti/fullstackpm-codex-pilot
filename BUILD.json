@@ -1,0 +1,11 @@
+{
+  "plugin": "fullstackpm-pilot",
+  "version": "0.1.0+codex.20260909221745",
+  "origin": "https://fullstackpm-mcp-pilot.vercel.app",
+  "stage": "synthetic-fixtures",
+  "fixture_only": true,
+  "account_connected": false,
+  "native_recipe_version": 3,
+  "local_tools_version": 1,
+  "installation_executor": "bundled-stdio-mcp"
+}

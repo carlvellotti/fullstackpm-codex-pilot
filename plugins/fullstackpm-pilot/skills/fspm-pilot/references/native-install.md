@@ -1,0 +1,15 @@
+# Local installation — bundled tools
+
+Installation and guest state now run through `fspm-pilot-local`. The tested Python source ships as files inside the plugin and is launched by Codex. Never read, transcribe, import, or execute that source through shell tools. Never fall back to the old Markdown recipe or FSPM CLI.
+
+Use `fspm_pilot_local_status` to verify the local server host and selected absolute project root. A task connected to a remote executor may have a different filesystem; stop if the local server and intended project do not match. No path or personal record is uploaded to the hosted MCP service.
+
+`fspm_pilot_install(root, kind, item_id)` performs public plan preparation, pinned downloads, verification, exclusive installation and receipts in one call. `kind` is `learning` for a module or `work` for a reusable skill. The project directory must already exist. A new learning root must be empty except an optional `.DS_Store`; an existing learning root must have the pilot's schema-2 marker. Work roots receive only the selected namespaced skill. This prototype supports public same-origin synthetic ZIPs with no setup prerequisites. It does not install runtimes or support paid/manual-setup packages.
+
+Give one short progress sentence, then use the tool and read its returned entrypoint with normal file-reading tools. Do not narrate hashes, staging, UUIDs or implementation steps. A successful installation is never lesson completion.
+
+For interruption, call local status and repeat the same install. The tool resumes the durable pending operation for the same item automatically. Explicit operation IDs must match the pending identity. Post-publication interruptions and failures before download bytes arrive can resume. A partial/edited ZIP is preserved for inspection and requires explicit cancellation before a fresh install; never unlink a smaller file merely because it could be a partial download. Plans expire after 24 hours; `plan_expired` likewise requires explicit cancellation before a new operation. On conflicts or permission errors, preserve all files and explain the actionable problem. Never remove locks or replace unknown bytes. Only after explicit user cancellation may `fspm_pilot_cancel_install` archive the exact pending operation.
+
+Local status returns saved guest profile and attempts without writing. Use `fspm_pilot_set_name` only for a learner-offered name or explicit decline. Use `fspm_pilot_checkpoint` with stable UUID strings supplied directly as arguments (no shell needed), a lesson ID from the returned `lesson_entrypoints` keys, and the expected revision. New attempts start at revision zero. Save completion only after the student actually completes the required work, with `confirm_completed: true`. Reuse an event UUID on retry; reread state on revision conflict. Guest records remain in the learning folder and never enter a work project or account service.
+
+Missing local tools are a plugin startup failure. Report the runtime/connection issue; do not recreate the helper from text, install a dependency, change approval policy, or install the original CLI.

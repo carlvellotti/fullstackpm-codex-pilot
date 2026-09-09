@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "fspm-pilot-public": {
+      "type": "http",
+      "url": "https://fullstackpm-mcp-pilot.vercel.app/mcp/public"
+    },
+    "fspm-pilot-account": {
+      "type": "http",
+      "url": "https://fullstackpm-mcp-pilot.vercel.app/mcp/account"
+    },
+    "fspm-pilot-local": {
+      "command": "./bin/fspm-pilot-local",
+      "args": [],
+      "cwd": ".",
+      "startup_timeout_sec": 10,
+      "tool_timeout_sec": 120
+    }
+  }
+}

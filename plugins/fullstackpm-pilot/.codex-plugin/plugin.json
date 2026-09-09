@@ -1,0 +1,19 @@
+{
+  "name": "fullstackpm-pilot",
+  "version": "0.1.0+codex.20260909221745",
+  "description": "Independent Full Stack PM pilot: anonymous synthetic modules and workplace skills in Codex.",
+  "author": {
+    "name": "Full Stack PM"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Full Stack PM Pilot",
+    "shortDescription": "Try synthetic lessons and reusable skills.",
+    "longDescription": "An isolated Codex pilot with anonymous module-by-module fixture downloads and reusable work skills. Real course content, account sign-in and tracking remain unavailable.",
+    "developerName": "Full Stack PM",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Get me started with the Full Stack PM Pilot."
+  },
+  "mcpServers": "./.mcp.json"
+}
