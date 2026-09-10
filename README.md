@@ -2,7 +2,7 @@
 
 An invited test release for Apple Silicon Macs with Codex desktop. The plugin includes its local MCP installer and Python runtime and connects to a separate pilot staging service. The original Full Stack PM CLI is unchanged.
 
-Foundation, PM Workflows, Vibe Coding and the Write Proposal work skill are available for free testing. Browser sign-in, paid Core access and account progress are undergoing acceptance. This candidate is not the final release.
+Foundation, PM Workflows, Vibe Coding and the Write Proposal work skill are available for free testing. Browser sign-in, membership-backed Core downloads and account progress synchronization have passed integration testing. This candidate is not the final release.
 
 ## Install
 
@@ -30,7 +30,7 @@ Open a new empty local folder in Codex, start a fresh task and say:
 
 > Use Full Stack PM Pilot. Install the Foundation module here and start my first lesson.
 
-Use a local task on the Mac where you want the files. Free learning needs no Full Stack PM account. Your name is optional. Modules download individually with their practice dependencies; installation does not mean lesson completion.
+Use a local task on the Mac where you want the files. Open and trust this dedicated learning folder in Codex so its course-specific agents can load; start a fresh task after installation. Trust is your choice in Codex, and the plugin does not change global trust settings. Free learning needs no Full Stack PM account. Your name is optional. Modules download individually with their practice dependencies; installation does not mean lesson completion.
 
 After doing some lesson work, start a new task in the same folder and say:
 
@@ -44,11 +44,11 @@ Open a separate work project and say:
 
 Only the namespaced skill and its supporting files are installed. Start a fresh task to use it and ask for help drafting a proposal.
 
-## Optional accounts — acceptance in progress
+## Optional accounts
 
 Use Codex's authentication control for `fspm-pilot-account`. The plugin supplies the client, callback and requested scopes. Complete the Full Stack PM browser sign-in and consent flow. Never paste tokens into a task.
 
-Connecting does not import guest history automatically. Ask explicitly to enable tracking or import existing progress. Account progress is a summary; exercise files and checkpoint prose are not synchronized between computers. Paid access requires a real membership. This candidate does not claim successful paid/account acceptance; those flows are part of the coordinated pilot check.
+Connecting does not import guest history automatically. Ask explicitly to enable tracking or import existing progress. Account progress is a summary; exercise files and checkpoint prose are not synchronized between computers. Paid access requires a real membership. Real paid installation and progress sync have passed with the published Mac runtime. Final desktop and nonmember-account acceptance remain in progress.
 
 ## Update, remove and recover
 
@@ -64,4 +64,4 @@ Local names, paths, exercise files and checkpoint prose stay local. The hosted s
 
 Report issues at https://github.com/carlvellotti/fullstackpm-codex-pilot/issues with the plugin version, macOS/Codex version, error code and reproduction steps. Keep credentials, private course content and workplace files out of public reports.
 
-This is a public Git marketplace prerelease, not an approved Codex directory listing. Only Apple Silicon Mac is a supported student target. See `ACCEPTANCE.md` for coverage. Runtime notices are included in the plugin; `BUILD.json` records provenance and `SHA256SUMS.json` records file hashes and symlink targets.
+This is a public Git marketplace prerelease, not an approved Codex directory listing. Only Apple Silicon Mac is a supported student target. Integration tests used macOS 15.3.1 and the Codex desktop bundled CLI 0.153.1 (hq browser OAuth also used Codex 0.153.3). See `ACCEPTANCE.md` for coverage. Runtime notices are included in the plugin; `BUILD.json` records provenance and `SHA256SUMS.json` records file hashes and symlink targets.

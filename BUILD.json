@@ -1,6 +1,6 @@
 {
   "plugin": "fullstackpm-pilot",
-  "version": "0.1.0+codex.20260910155019",
+  "version": "0.1.0+codex.20260910163721",
   "origin": "https://fullstackpm-mcp-pilot-staging.vercel.app",
   "account_oauth": {
     "clientId": "NETa6UYAi6AFKDxN",
@@ -16,7 +16,5 @@
     "platform": "Darwin-arm64",
     "manifest_sha256": "66c47514785c87ca60e675bb9a9a76118106d945a1ea2054c15aa78e8d7cf1b1"
   },
-  "implementation_commit": "29acdff1cf7d7ef4a5b00cebdf305d004ce86360",
-  "release_channel": "invited-curriculum-account-candidate",
-  "catalog_registry_sha256": "041642d8d727944ca48931886a6b11c06659a987ca8ba438e1a792403b89e869"
+  "implementation_source_commit": "391ffd3c99dd98d5109009c9f24cf76e87f110ca"
 }

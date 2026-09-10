@@ -1,52 +1,152 @@
 {
-  ".agents/plugins/marketplace.json": "4bfd18d56d96a5607d931172bfcd56f3bac1322bbf4888a85f66c7c0ef6bd160",
-  "ACCEPTANCE.md": "fb43ef03ab1f62ebcf2beb502ef16c830c70fc9f3b38a6c6cc9e691f110a60c8",
-  "BUILD.json": "ffc34bf2610743f99c3100c7e5c838f9a35f668b0b3fe120e056cafdfed737ec",
-  "README.md": "ff4456186c0c23f4636340a823f730a9d89d5d3a63b7f16a26eee4c1f0a12a6f",
-  "plugins/fullstackpm-pilot/.codex-plugin/plugin.json": "5fd1151a2753b261867bc6266072391ee17ed38dc1f98846cb56b5db5338ebe0",
-  "plugins/fullstackpm-pilot/.mcp.json": "df504155ee45674fa651bf0f88b445af21f747d38f5e4dd424539efdd686079c",
-  "plugins/fullstackpm-pilot/bin/fspm-pilot-local": "d133406b0a780cbed1c35b9491aa315676123a1d81449393f083226c1e0ab0c2",
-  "plugins/fullstackpm-pilot/local/artifacts.py": "515ab77bc3487c35f037e8e8129a489257e3f79591cf821428408d908562877f",
-  "plugins/fullstackpm-pilot/local/learning_state.py": "fae4f6df4290ade707ebfd1b5bc691eb878d92e29877d56a393598505a3cd627",
-  "plugins/fullstackpm-pilot/local/operations.py": "0b48bb7b0bbfd7774e2e1b106c70dcd5b752b7bb57ca38a9b9cb6ca3bdab557b",
-  "plugins/fullstackpm-pilot/local/pilot_local.py": "8ef64010c64985df6e854cd230bcef31da7673243210e9e4f1ca4603a5d02e0a",
-  "plugins/fullstackpm-pilot/local/project_support.py": "33ab645fa6740ee6aef84020a9e639c0fe73c6bb400ffcb2e2cf5b4c3f867172",
-  "plugins/fullstackpm-pilot/local/service.json": "23d9a00ca7da45446a8355814f05103511b02ff80536a5ee3d760ac70a40420a",
-  "plugins/fullstackpm-pilot/local/sync_state.py": "56ebebd0c9e407c04d372ac98b91c87f3fbb02c28dc6407a28db8e8dca6b3af8",
-  "plugins/fullstackpm-pilot/local/work_skills.py": "2d938a0c012028611bc26ee414c07e74bde0e4b45c811920e31434dd73ec79af",
-  "plugins/fullstackpm-pilot/local/workspace_location.py": "681f26fe1dc1ef7d089c2c7b4c32295245ea961e4cfc1e3eafb49f598b37ceff",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/BUILD-REQUIREMENTS.txt": "cc0d704adfd3a6b31b55986a67bdb5b7f377e2511116b98741c02b0126babcc7",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/RUNTIME.json": "66c47514785c87ca60e675bb9a9a76118106d945a1ea2054c15aa78e8d7cf1b1",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/PYTHON.json": "6fa4bf954450580f325c73f1298377170ef1045100a163ddee2e2486a92e4bfc",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/README.txt": "912760973247bd3c861d501176f40f1754388730697a7c7dc1471352148dac60",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/certifi/LICENSE": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/pyinstaller/COPYING.txt": "dcf75fdb959db1e3b41c0f8505069d2ece781b5ec6b3d0a4d30975cfc6580245",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.bdb.txt": "3bdff06e69991c94664f2ef5c5f8096f60b7dbec071756ea6cc26b445e06ec5b",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.bzip2.txt": "1f38bbc7caacafd65169276d759c0d88c991b753b643ce35d0e45ea1971dd441",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.cpython.txt": "86e61415828a8b5b06ec8d024e6f086ce155a8b85fd0c419c0ba4dc004e74fdd",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.expat.txt": "122f2c27000472a201d337b9b31f7eb2b52d091b02857061a8880371612d9534",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libX11.txt": "2daec087a88e7c9b8082557cdeebad5bbb8155a4137472f0b22e269cd99d0c1e",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libXau.txt": "56abe29bb1d9806a9e04fa9f80fed2c0f18027594df3f098148d814aef6bddfa",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libedit.txt": "29cea33c32bbc9785142386377915612a2fa786482c46843383384aded2e09b1",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libffi.txt": "deaf3a42effb551a5b140fa9afefed183a27f1341c6d1bf430d106a5e6931fc0",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.liblzma.txt": "9a4062de0a2c388a98cf35a35d348b62fa97c838a71c3c28ee1a2d7d0a565b02",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libuuid.txt": "122ee1f7e258f2c3c0e538a75c037684f420454bf3850ddc74ce750bbf5fe86b",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libxcb.txt": "c5ffbfeaa501071ceeb97b7de2c0d703fdaa35de01c0fb6cbac1c28453a3e9fd",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.mpdecimal.txt": "669512af7219f58be03a398766d7c9da11a3b3df9d3f05cb74c5ceca25c8da3b",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.ncurses.txt": "87a4c4442337b8968ef956031c406b74f9cb7149b7ba87311bdaba534816201c",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.openssl-1.1.txt": "9c04cce50c4989d5601dd8b07f6ab922c40388b66ac736c9007cb1ed9d9dd560",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.openssl-3.txt": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.sqlite.txt": "38bef3d28b24f145ea293bd3b6eb4b20396982abc8303128fb493986ea5bc719",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.tcl.txt": "c0a69a2bfd757361ec7e6143973b103c90409316b49e9c88db26ad6388e79f16",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.tix.txt": "3ac5cdd0bef6c43ce34c6a7ced452081d9e5a0bf94082b9f9147d23ec9e214f5",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.zlib.txt": "818922b2620f12801a12bf78e399644a30990e66824abd8ca8ec24d451d6f92c",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution.json": "f3a501c69ddff33888642b54fa9a2b69eb7917e2f86ade7d4ee08b7c0f41bb60",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/_internal/base_library.zip": "b9e17341f904786ae6658dc2e6194736e2f9de5727136d12e167f32b88f3fd4b",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/_internal/certifi/cacert.pem": "9cc2a774b5198dcff14d9be1e66091f538975d867ce029a96bce15a55dfd730f",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/_internal/certifi/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/_internal/libpython3.13.dylib": "5dd353b01d7c94c68aca4d1bb4b8c18eba2f07a3de4f5b1cd08d4a37717e67be",
-  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/fspm-pilot-local": "0a29404cf6d1ab8e0da63a87267f06c1af08d17a517245a487c8cf07aa47d723",
-  "plugins/fullstackpm-pilot/skills/fspm-pilot/SKILL.md": "c3542d96f5bbbb9843a6acd05802469db7d3ee5140125f135d6b620e534c5e8b",
-  "plugins/fullstackpm-pilot/skills/fspm-pilot/references/accounts.md": "3dd3d60f2ab8ff01c9ca9d4382dc225b1db4db8de75c56e7711288a4856b5cd0",
-  "plugins/fullstackpm-pilot/skills/fspm-pilot/references/native-install.md": "cf5779f5027b066eaa7d5700ddad8a0bab1a85b643063ec8c2419d4bfaa30150"
+  ".agents/plugins/marketplace.json": {
+    "sha256": "4bfd18d56d96a5607d931172bfcd56f3bac1322bbf4888a85f66c7c0ef6bd160"
+  },
+  "ACCEPTANCE.md": {
+    "sha256": "1bbf6e7caf4179db61ede88ac1e226148a5e10d9b19c553ac4a57984ae7c982d"
+  },
+  "BUILD.json": {
+    "sha256": "4648f86a398bcd819f557326e5721d201dea9842deeea8d34b3b8cb4a8bad4dc"
+  },
+  "README.md": {
+    "sha256": "78dbf0813330148866c013157035091b42dbb0913410c8a9387b4cdf3e6ed9ba"
+  },
+  "plugins/fullstackpm-pilot/.codex-plugin/plugin.json": {
+    "sha256": "d3f83327e7e7c0c92e6c1c1df82c8c9b7e10893b71fcc076f7304ce6339e3928"
+  },
+  "plugins/fullstackpm-pilot/.mcp.json": {
+    "sha256": "df504155ee45674fa651bf0f88b445af21f747d38f5e4dd424539efdd686079c"
+  },
+  "plugins/fullstackpm-pilot/bin/fspm-pilot-local": {
+    "sha256": "d133406b0a780cbed1c35b9491aa315676123a1d81449393f083226c1e0ab0c2"
+  },
+  "plugins/fullstackpm-pilot/local/artifacts.py": {
+    "sha256": "515ab77bc3487c35f037e8e8129a489257e3f79591cf821428408d908562877f"
+  },
+  "plugins/fullstackpm-pilot/local/learning_state.py": {
+    "sha256": "fae4f6df4290ade707ebfd1b5bc691eb878d92e29877d56a393598505a3cd627"
+  },
+  "plugins/fullstackpm-pilot/local/operations.py": {
+    "sha256": "0b48bb7b0bbfd7774e2e1b106c70dcd5b752b7bb57ca38a9b9cb6ca3bdab557b"
+  },
+  "plugins/fullstackpm-pilot/local/pilot_local.py": {
+    "sha256": "8ef64010c64985df6e854cd230bcef31da7673243210e9e4f1ca4603a5d02e0a"
+  },
+  "plugins/fullstackpm-pilot/local/project_support.py": {
+    "sha256": "33ab645fa6740ee6aef84020a9e639c0fe73c6bb400ffcb2e2cf5b4c3f867172"
+  },
+  "plugins/fullstackpm-pilot/local/service.json": {
+    "sha256": "23d9a00ca7da45446a8355814f05103511b02ff80536a5ee3d760ac70a40420a"
+  },
+  "plugins/fullstackpm-pilot/local/sync_state.py": {
+    "sha256": "56ebebd0c9e407c04d372ac98b91c87f3fbb02c28dc6407a28db8e8dca6b3af8"
+  },
+  "plugins/fullstackpm-pilot/local/work_skills.py": {
+    "sha256": "2d938a0c012028611bc26ee414c07e74bde0e4b45c811920e31434dd73ec79af"
+  },
+  "plugins/fullstackpm-pilot/local/workspace_location.py": {
+    "sha256": "681f26fe1dc1ef7d089c2c7b4c32295245ea961e4cfc1e3eafb49f598b37ceff"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/BUILD-REQUIREMENTS.txt": {
+    "sha256": "cc0d704adfd3a6b31b55986a67bdb5b7f377e2511116b98741c02b0126babcc7"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/RUNTIME.json": {
+    "sha256": "66c47514785c87ca60e675bb9a9a76118106d945a1ea2054c15aa78e8d7cf1b1"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/PYTHON.json": {
+    "sha256": "6fa4bf954450580f325c73f1298377170ef1045100a163ddee2e2486a92e4bfc"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/README.txt": {
+    "sha256": "912760973247bd3c861d501176f40f1754388730697a7c7dc1471352148dac60"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/certifi/LICENSE": {
+    "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/pyinstaller/COPYING.txt": {
+    "sha256": "dcf75fdb959db1e3b41c0f8505069d2ece781b5ec6b3d0a4d30975cfc6580245"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.bdb.txt": {
+    "sha256": "3bdff06e69991c94664f2ef5c5f8096f60b7dbec071756ea6cc26b445e06ec5b"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.bzip2.txt": {
+    "sha256": "1f38bbc7caacafd65169276d759c0d88c991b753b643ce35d0e45ea1971dd441"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.cpython.txt": {
+    "sha256": "86e61415828a8b5b06ec8d024e6f086ce155a8b85fd0c419c0ba4dc004e74fdd"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.expat.txt": {
+    "sha256": "122f2c27000472a201d337b9b31f7eb2b52d091b02857061a8880371612d9534"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libX11.txt": {
+    "sha256": "2daec087a88e7c9b8082557cdeebad5bbb8155a4137472f0b22e269cd99d0c1e"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libXau.txt": {
+    "sha256": "56abe29bb1d9806a9e04fa9f80fed2c0f18027594df3f098148d814aef6bddfa"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libedit.txt": {
+    "sha256": "29cea33c32bbc9785142386377915612a2fa786482c46843383384aded2e09b1"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libffi.txt": {
+    "sha256": "deaf3a42effb551a5b140fa9afefed183a27f1341c6d1bf430d106a5e6931fc0"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.liblzma.txt": {
+    "sha256": "9a4062de0a2c388a98cf35a35d348b62fa97c838a71c3c28ee1a2d7d0a565b02"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libuuid.txt": {
+    "sha256": "122ee1f7e258f2c3c0e538a75c037684f420454bf3850ddc74ce750bbf5fe86b"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.libxcb.txt": {
+    "sha256": "c5ffbfeaa501071ceeb97b7de2c0d703fdaa35de01c0fb6cbac1c28453a3e9fd"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.mpdecimal.txt": {
+    "sha256": "669512af7219f58be03a398766d7c9da11a3b3df9d3f05cb74c5ceca25c8da3b"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.ncurses.txt": {
+    "sha256": "87a4c4442337b8968ef956031c406b74f9cb7149b7ba87311bdaba534816201c"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.openssl-1.1.txt": {
+    "sha256": "9c04cce50c4989d5601dd8b07f6ab922c40388b66ac736c9007cb1ed9d9dd560"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.openssl-3.txt": {
+    "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.sqlite.txt": {
+    "sha256": "38bef3d28b24f145ea293bd3b6eb4b20396982abc8303128fb493986ea5bc719"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.tcl.txt": {
+    "sha256": "c0a69a2bfd757361ec7e6143973b103c90409316b49e9c88db26ad6388e79f16"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.tix.txt": {
+    "sha256": "3ac5cdd0bef6c43ce34c6a7ced452081d9e5a0bf94082b9f9147d23ec9e214f5"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution/LICENSE.zlib.txt": {
+    "sha256": "818922b2620f12801a12bf78e399644a30990e66824abd8ca8ec24d451d6f92c"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES/python-distribution.json": {
+    "sha256": "f3a501c69ddff33888642b54fa9a2b69eb7917e2f86ade7d4ee08b7c0f41bb60"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/_internal/base_library.zip": {
+    "sha256": "b9e17341f904786ae6658dc2e6194736e2f9de5727136d12e167f32b88f3fd4b"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/_internal/certifi/cacert.pem": {
+    "sha256": "9cc2a774b5198dcff14d9be1e66091f538975d867ce029a96bce15a55dfd730f"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/_internal/certifi/py.typed": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/_internal/libpython3.13.dylib": {
+    "sha256": "5dd353b01d7c94c68aca4d1bb4b8c18eba2f07a3de4f5b1cd08d4a37717e67be"
+  },
+  "plugins/fullstackpm-pilot/runtime/Darwin-arm64/fspm-pilot-local": {
+    "sha256": "0a29404cf6d1ab8e0da63a87267f06c1af08d17a517245a487c8cf07aa47d723"
+  },
+  "plugins/fullstackpm-pilot/skills/fspm-pilot/SKILL.md": {
+    "sha256": "952654220aea24b432f66c0ff64a227ee959ca378c2f5bbf00ba617abd21c8c2"
+  },
+  "plugins/fullstackpm-pilot/skills/fspm-pilot/references/accounts.md": {
+    "sha256": "3dd3d60f2ab8ff01c9ca9d4382dc225b1db4db8de75c56e7711288a4856b5cd0"
+  },
+  "plugins/fullstackpm-pilot/skills/fspm-pilot/references/native-install.md": {
+    "sha256": "cf5779f5027b066eaa7d5700ddad8a0bab1a85b643063ec8c2419d4bfaa30150"
+  }
 }
