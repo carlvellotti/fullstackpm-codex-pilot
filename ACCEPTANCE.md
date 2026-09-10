@@ -20,7 +20,7 @@ This is an integration candidate. Final pilot acceptance is incomplete.
 | Fresh public Git installation of this candidate | Passed on Mac Codex 0.153.1: correct version and all runtime files verified, four public/eight local tools, optional account logged out, removal/reinstall passed |
 | Final Codex desktop student walkthrough | Pending |
 
-Plugin `0.1.0+codex.20260910163721` adds trust/reload guidance to the unchanged verified runtime. Fresh public installation of this new version is being checked.
+Plugin `0.1.0+codex.20260910163721` adds trust/reload guidance to the unchanged verified runtime. Fresh public Git installation of this version passed on Mac: exact runtime inventory, four public/eight local tools, optional account logged out, removal/reinstall.
 
 The service is the isolated staging deployment `dpl_4b86nKxDcHF6L6YHEeeoD4vFkWFZ` at https://fullstackpm-mcp-pilot-staging.vercel.app. Its curriculum registry SHA-256 is `041642d8d727944ca48931886a6b11c06659a987ca8ba438e1a792403b89e869`. Private archives are not included in static public files or this plugin.
 
