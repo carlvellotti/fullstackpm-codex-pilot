@@ -1,16 +1,17 @@
 {
   ".agents/plugins/marketplace.json": "4bfd18d56d96a5607d931172bfcd56f3bac1322bbf4888a85f66c7c0ef6bd160",
-  "BUILD.json": "81a04f7109e0b2cef8662a4cc3d02504c59ca2e75ba5275f361062a88276f33b",
-  "README.md": "7ba4cbbca161e05a643b015836aa979362d7de572a3b328c56a3f0cddc65fcb6",
-  "plugins/fullstackpm-pilot/.codex-plugin/plugin.json": "17860da317fb952de273ada408fa87bb8c22f64e7b47819c19e92f7b3510be86",
-  "plugins/fullstackpm-pilot/.mcp.json": "5e915290e7520f9854f5f02fd898b68ba6fcdd75311db4915034b49befa23861",
+  "ACCEPTANCE.md": "a7d2194f33b0ad84e02e1ec3e2d65c097f220056ce6acfc35ec8f9daf87233c4",
+  "BUILD.json": "ffc34bf2610743f99c3100c7e5c838f9a35f668b0b3fe120e056cafdfed737ec",
+  "README.md": "ff4456186c0c23f4636340a823f730a9d89d5d3a63b7f16a26eee4c1f0a12a6f",
+  "plugins/fullstackpm-pilot/.codex-plugin/plugin.json": "5fd1151a2753b261867bc6266072391ee17ed38dc1f98846cb56b5db5338ebe0",
+  "plugins/fullstackpm-pilot/.mcp.json": "df504155ee45674fa651bf0f88b445af21f747d38f5e4dd424539efdd686079c",
   "plugins/fullstackpm-pilot/bin/fspm-pilot-local": "d133406b0a780cbed1c35b9491aa315676123a1d81449393f083226c1e0ab0c2",
   "plugins/fullstackpm-pilot/local/artifacts.py": "515ab77bc3487c35f037e8e8129a489257e3f79591cf821428408d908562877f",
   "plugins/fullstackpm-pilot/local/learning_state.py": "fae4f6df4290ade707ebfd1b5bc691eb878d92e29877d56a393598505a3cd627",
   "plugins/fullstackpm-pilot/local/operations.py": "0b48bb7b0bbfd7774e2e1b106c70dcd5b752b7bb57ca38a9b9cb6ca3bdab557b",
   "plugins/fullstackpm-pilot/local/pilot_local.py": "8ef64010c64985df6e854cd230bcef31da7673243210e9e4f1ca4603a5d02e0a",
   "plugins/fullstackpm-pilot/local/project_support.py": "33ab645fa6740ee6aef84020a9e639c0fe73c6bb400ffcb2e2cf5b4c3f867172",
-  "plugins/fullstackpm-pilot/local/service.json": "6b3d82a3b1dad3c81bfbe3e4d33a6765ca98fdf16672c1005812b5d6d4481888",
+  "plugins/fullstackpm-pilot/local/service.json": "23d9a00ca7da45446a8355814f05103511b02ff80536a5ee3d760ac70a40420a",
   "plugins/fullstackpm-pilot/local/sync_state.py": "56ebebd0c9e407c04d372ac98b91c87f3fbb02c28dc6407a28db8e8dca6b3af8",
   "plugins/fullstackpm-pilot/local/work_skills.py": "2d938a0c012028611bc26ee414c07e74bde0e4b45c811920e31434dd73ec79af",
   "plugins/fullstackpm-pilot/local/workspace_location.py": "681f26fe1dc1ef7d089c2c7b4c32295245ea961e4cfc1e3eafb49f598b37ceff",
@@ -47,5 +48,5 @@
   "plugins/fullstackpm-pilot/runtime/Darwin-arm64/fspm-pilot-local": "0a29404cf6d1ab8e0da63a87267f06c1af08d17a517245a487c8cf07aa47d723",
   "plugins/fullstackpm-pilot/skills/fspm-pilot/SKILL.md": "c3542d96f5bbbb9843a6acd05802469db7d3ee5140125f135d6b620e534c5e8b",
   "plugins/fullstackpm-pilot/skills/fspm-pilot/references/accounts.md": "3dd3d60f2ab8ff01c9ca9d4382dc225b1db4db8de75c56e7711288a4856b5cd0",
-  "plugins/fullstackpm-pilot/skills/fspm-pilot/references/native-install.md": "415cebd7d77ac9f4bb42b1159fb2914f2341459673f39bddc83ffccc9c785e67"
+  "plugins/fullstackpm-pilot/skills/fspm-pilot/references/native-install.md": "cf5779f5027b066eaa7d5700ddad8a0bab1a85b643063ec8c2419d4bfaa30150"
 }

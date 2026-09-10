@@ -2,11 +2,19 @@
   "mcpServers": {
     "fspm-pilot-public": {
       "type": "http",
-      "url": "https://fullstackpm-mcp-pilot.vercel.app/mcp/public"
+      "url": "https://fullstackpm-mcp-pilot-staging.vercel.app/mcp/public"
     },
     "fspm-pilot-account": {
       "type": "http",
-      "url": "https://fullstackpm-mcp-pilot.vercel.app/mcp/account"
+      "url": "https://fullstackpm-mcp-pilot-staging.vercel.app/mcp/account",
+      "oauth": {
+        "clientId": "NETa6UYAi6AFKDxN",
+        "callbackUrl": "http://127.0.0.1/callback"
+      },
+      "scopes": [
+        "fspm:pilot",
+        "offline_access"
+      ]
     },
     "fspm-pilot-local": {
       "command": "./bin/fspm-pilot-local",

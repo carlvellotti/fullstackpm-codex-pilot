@@ -1,16 +1,12 @@
-# Full Stack PM Pilot for Codex
+# Full Stack PM Codex pilot — real curriculum candidate
 
-An experimental Codex plugin for learning modules and installing reusable skills in work projects.
+An invited test release for Apple Silicon Macs with Codex desktop. The plugin includes its local MCP installer and Python runtime and connects to a separate pilot staging service. The original Full Stack PM CLI is unchanged.
 
-**This release contains sample lessons only.** It supports anonymous module downloads, local progress, and a sample work skill. Real courses, account sign-in, cloud progress, and paid access are in development. It does not replace or change the existing Full Stack PM CLI.
+Foundation, PM Workflows, Vibe Coding and the Write Proposal work skill are available for free testing. Browser sign-in, paid Core access and account progress are undergoing acceptance. This candidate is not the final release.
 
-## Install on a Mac
+## Install
 
-Requirements: an Apple Silicon Mac, Codex desktop with plugin support, and internet access. The plugin includes its own runtime; no Python, Node, pip, uv, or separate Full Stack PM CLI installation is required. Intel Macs, Windows, and Linux are not supported by this package.
-
-The included executable has ad-hoc signatures, not Developer ID signing or notarization. Installation through the public Git marketplace is tested on an existing Mac; acceptance on a pristine Mac remains outstanding. If macOS blocks execution, stop and report the error; do not disable system protections.
-
-Paste this into Terminal. It finds the Codex CLI bundled with the desktop app, registers this public marketplace, and installs the plugin:
+Paste into Terminal on your Mac. This registers the candidate branch and installs the plugin:
 
 ```sh
 fspm_codex_bin=""
@@ -21,52 +17,51 @@ for app in /Applications/Codex.app /Applications/ChatGPT.app; do
   fi
 done
 if [ -n "$fspm_codex_bin" ]; then
-  "$fspm_codex_bin" plugin marketplace add https://github.com/carlvellotti/fullstackpm-codex-pilot &&
+  "$fspm_codex_bin" plugin marketplace add https://github.com/carlvellotti/fullstackpm-codex-pilot --ref codex/account-rc-20260910 &&
   "$fspm_codex_bin" plugin add fullstackpm-pilot@fullstackpm-pilot
 else
   echo "Codex was not found in Applications. Locate the app before continuing."
 fi
 ```
 
-If you already have the older Full Stack PM Pilot from `personal` or `fullstackpm-local-test`, disable that older copy in Codex Plugins to avoid duplicate tools.
+There is no separate Python or FSPM CLI installation. If another pilot marketplace is already configured, record its source/version before changing it. Disable duplicate pilot plugins so tools are unambiguous. Report registration conflicts instead of deleting configuration or course files.
 
-Open an empty local folder in Codex, start a fresh task, and say:
+Open a new empty local folder in Codex, start a fresh task and say:
 
-> Use Full Stack PM Pilot to install the welcome fixture here and start the lesson.
+> Use Full Stack PM Pilot. Install the Foundation module here and start my first lesson.
 
-Approve normal tool requests. No Full Stack PM login is required. Use local execution on the Mac where you want the files; a task running on a remote computer installs files on that remote computer.
+Use a local task on the Mac where you want the files. Free learning needs no Full Stack PM account. Your name is optional. Modules download individually with their practice dependencies; installation does not mean lesson completion.
 
-## Try continuation and a work skill
+After doing some lesson work, start a new task in the same folder and say:
 
-Answer the lesson's product question and complete its exercise. In a fresh task in the same project, ask to continue with Full Stack PM Pilot. Your local checkpoint and practice files should remain available.
+> Continue my Full Stack PM lesson from my saved checkpoint.
 
-In a separate test work project, say:
+## Apply a skill at work
 
-> Install the Full Stack PM planning fixture skill in this project.
+Open a separate work project and say:
 
-Only the namespaced skill is installed in `.agents/skills/fspm-pilot-planning-fixture/`. In a new task in that project, ask for help framing a product decision.
+> Install the Full Stack PM Write Proposal skill in this project.
 
-## Update or remove
+Only the namespaced skill and its supporting files are installed. Start a fresh task to use it and ask for help drafting a proposal.
 
-Use Codex's plugin management to refresh this marketplace and reinstall the plugin, then start a fresh task. Downloaded lessons are pinned separately; updating the plugin does not overwrite student notes.
+## Optional accounts — acceptance in progress
 
-To uninstall, remove **Full Stack PM Pilot** in Codex Plugins. Downloaded lessons, practice files, and installed workplace skills remain in their projects. To deactivate an installed workplace skill while preserving its files, ask the pilot to remove that skill before uninstalling the plugin. The skill is archived locally and can be restored. You can remove a test folder yourself after preserving any work you want to keep.
+Use Codex's authentication control for `fspm-pilot-account`. The plugin supplies the client, callback and requested scopes. Complete the Full Stack PM browser sign-in and consent flow. Never paste tokens into a task.
 
-## Troubleshooting
+Connecting does not import guest history automatically. Ask explicitly to enable tracking or import existing progress. Account progress is a summary; exercise files and checkpoint prose are not synchronized between computers. Paid access requires a real membership. This candidate does not claim successful paid/account acceptance; those flows are part of the coordinated pilot check.
 
-- Plugin missing: quit and reopen Codex, then start a new task. Check that `fullstackpm-pilot` is registered and the plugin is enabled.
-- Wrong computer: use a local task rather than a remote host.
-- Learning folder rejected: let the agent select or create a dedicated empty course folder. Existing work is preserved.
-- Interrupted install: ask the agent to resume the same module. Keep staging files; do not clear them manually.
-- Edited-file conflict: the installer preserves the files and stops. Ask for an explanation; cancellation requires an explicit request and preserves staging.
-- Sign-in requested for a free lesson: report it. This release does not require Full Stack PM authentication.
+## Update, remove and recover
 
-Include the plugin version from `BUILD.json`, macOS/Codex version, tool error code, and steps to reproduce in a [GitHub issue](https://github.com/carlvellotti/fullstackpm-codex-pilot/issues). Do not post credentials, download grants, private workplace files, or personal course notes.
+Refresh the registered marketplace and reinstall through Codex's plugin controls, then start a fresh task. Lesson releases are pinned separately, and updates preserve student files. Previous releases remain available for operator rollback.
 
-## Data and current limitations
+Removing the plugin leaves lessons, practice files, checkpoints and workplace skills in their projects. To deactivate a work skill while keeping its files, ask the pilot to remove it before uninstalling the plugin. The skill is archived reversibly.
 
-The local helper handles downloads and file validation. Names, notes, local paths, and checkpoints remain on the computer. The hosted service receives content identifiers and random operation/workspace identifiers for installation. Ordinary hosting access logs may include IP addresses and request metadata.
+For interrupted downloads, ask to resume the same module and keep pending files. Edited-file conflicts are preserved for review; explicit cancellation archives the pending operation. Use a dedicated empty learning folder if the selected folder is rejected. Report runtime startup errors with the plugin version.
 
-This is a public Git marketplace distribution, not an approved listing in the Codex public plugin directory. Public-directory submission, real content, browser authentication, account sync, and paid access remain separate release gates. This version supports Apple Silicon Macs only.
+## Data and support
 
-The bundled runtime includes third-party license notices under `plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES`. `RUNTIME.json` records runtime files, executable flags, relative symlinks, and build input hashes; `BUILD.json` pins its hash and the implementation revision. `SHA256SUMS.json` records release-file hashes (and symlink targets). These checks detect corruption; they are not an independent publisher signature.
+Local names, paths, exercise files and checkpoint prose stay local. The hosted service receives content IDs and random installation identifiers. Consented tracking uploads lesson/release/workspace IDs, attempt states and event times. Saving an account-profile name requires a separate request. Hosting logs may include IP addresses and request metadata. This pilot does not issue certificates.
+
+Report issues at https://github.com/carlvellotti/fullstackpm-codex-pilot/issues with the plugin version, macOS/Codex version, error code and reproduction steps. Keep credentials, private course content and workplace files out of public reports.
+
+This is a public Git marketplace prerelease, not an approved Codex directory listing. Only Apple Silicon Mac is a supported student target. See `ACCEPTANCE.md` for coverage. Runtime notices are included in the plugin; `BUILD.json` records provenance and `SHA256SUMS.json` records file hashes and symlink targets.
