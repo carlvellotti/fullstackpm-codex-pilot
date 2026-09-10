@@ -1,11 +1,18 @@
 {
   "plugin": "fullstackpm-pilot",
-  "version": "0.1.0+codex.20260909221745",
+  "version": "0.1.0+codex.20260910011250",
   "origin": "https://fullstackpm-mcp-pilot.vercel.app",
   "stage": "synthetic-fixtures",
+  "catalog_source": "hosted_service",
+  "account_connection": "optional",
+  "native_recipe_version": 3,
+  "local_tools_version": 4,
+  "installation_executor": "bundled-stdio-mcp",
+  "local_runtime": {
+    "platform": "Darwin-arm64",
+    "manifest_sha256": "66c47514785c87ca60e675bb9a9a76118106d945a1ea2054c15aa78e8d7cf1b1"
+  },
   "fixture_only": true,
   "account_connected": false,
-  "native_recipe_version": 3,
-  "local_tools_version": 1,
-  "installation_executor": "bundled-stdio-mcp"
+  "source_commit": "a2985553465cc37b8c73f9ba849516f9caecaeba"
 }

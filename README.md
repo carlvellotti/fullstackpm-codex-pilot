@@ -6,7 +6,9 @@ An experimental Codex plugin for learning modules and installing reusable skills
 
 ## Install on a Mac
 
-Requirements: Codex desktop with plugin support, internet access, and an existing `/usr/bin/python3` version 3.9 or later. This release does not install Python. If macOS asks to install developer tools, stop; runtime packaging is still being improved.
+Requirements: an Apple Silicon Mac, Codex desktop with plugin support, and internet access. The plugin includes its own runtime; no Python, Node, pip, uv, or separate Full Stack PM CLI installation is required. Intel Macs, Windows, and Linux are not supported by this package.
+
+The included executable has ad-hoc signatures, not Developer ID signing or notarization. Installation through the public Git marketplace is tested on an existing Mac; acceptance on a pristine Mac remains outstanding. If macOS blocks execution, stop and report the error; do not disable system protections.
 
 Paste this into Terminal. It finds the Codex CLI bundled with the desktop app, registers this public marketplace, and installs the plugin:
 
@@ -46,9 +48,9 @@ Only the namespaced skill is installed in `.agents/skills/fspm-pilot-planning-fi
 
 ## Update or remove
 
-Use Codex's plugin management to update this marketplace and reinstall the plugin, then start a fresh task. Downloaded lessons are pinned separately; updating the plugin does not overwrite student notes.
+Use Codex's plugin management to refresh this marketplace and reinstall the plugin, then start a fresh task. Downloaded lessons are pinned separately; updating the plugin does not overwrite student notes.
 
-To uninstall, remove **Full Stack PM Pilot** in Codex Plugins. Downloaded lessons, practice files, and installed workplace skills remain in their projects. You can remove a test folder yourself after preserving any work you want to keep.
+To uninstall, remove **Full Stack PM Pilot** in Codex Plugins. Downloaded lessons, practice files, and installed workplace skills remain in their projects. To deactivate an installed workplace skill while preserving its files, ask the pilot to remove that skill before uninstalling the plugin. The skill is archived locally and can be restored. You can remove a test folder yourself after preserving any work you want to keep.
 
 ## Troubleshooting
 
@@ -65,4 +67,6 @@ Include the plugin version from `BUILD.json`, macOS/Codex version, tool error co
 
 The local helper handles downloads and file validation. Names, notes, local paths, and checkpoints remain on the computer. The hosted service receives content identifiers and random operation/workspace identifiers for installation. Ordinary hosting access logs may include IP addresses and request metadata.
 
-This is a public Git marketplace distribution, not an approved listing in the Codex public plugin directory. Public-directory submission, real content, browser authentication, account sync, and paid access remain separate release gates. This version is a Mac-first pilot; Windows support is not claimed.
+This is a public Git marketplace distribution, not an approved listing in the Codex public plugin directory. Public-directory submission, real content, browser authentication, account sync, and paid access remain separate release gates. This version supports Apple Silicon Macs only.
+
+The bundled runtime includes third-party license notices under `plugins/fullstackpm-pilot/runtime/Darwin-arm64/THIRD-PARTY-NOTICES`. `RUNTIME.json` records runtime files, executable flags, relative symlinks, and build input hashes; `BUILD.json` pins its hash and the implementation revision. `SHA256SUMS.json` records release-file hashes (and symlink targets). These checks detect corruption; they are not an independent publisher signature.

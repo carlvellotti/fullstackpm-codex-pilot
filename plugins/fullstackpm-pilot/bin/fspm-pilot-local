@@ -1,3 +1,13 @@
 #!/bin/sh
-# Mac/Linux pilot prerequisite: existing /usr/bin/python3, no package installation.
-exec /usr/bin/python3 -B -E -s "$(dirname "$0")/../local/pilot_local.py"
+# Published Mac bundles carry a runtime; source-only bundles are for development.
+pilot_bin=${0%/*}
+pilot_platform=$(/usr/bin/uname -s)-$(/usr/bin/uname -m)
+pilot_runtime="$pilot_bin/../runtime/$pilot_platform/fspm-pilot-local"
+if [ -d "$pilot_bin/../runtime" ]; then
+    if [ ! -x "$pilot_runtime" ]; then
+        echo "Full Stack PM: this plugin has no runnable helper for $pilot_platform. Install a supported platform release." >&2
+        exit 78
+    fi
+    exec "$pilot_runtime" "$pilot_bin/../local/service.json"
+fi
+exec /usr/bin/python3 -B -E -s "$pilot_bin/../local/pilot_local.py"

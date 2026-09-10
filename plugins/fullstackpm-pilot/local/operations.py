@@ -165,7 +165,12 @@ class LocalOperation:
         self.fd = os.open(str(self.root), os.O_RDONLY)
         try:
             fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            if self.kind == 'learning':
+                import workspace_location
+                workspace_location.require_current(self.root, self.workspace)
             self._begin()
+            if self.kind == 'learning':
+                workspace_location.remember(self.root, self.workspace)
             return self
         except BaseException:
             os.close(self.fd)
@@ -489,7 +494,28 @@ class LocalOperation:
 
     def _cleanup(self):
         plan = self.journal['plan']
-        allowed = {'operation.json', '.released'} | {p['artifact_id'] for p in plan['packages']} | {p['artifact_id'] + '.zip' for p in plan['packages']}
+        request_path = _safe(self.stage / 'local-request.json')
+        if request_path.exists():
+            record = _read(request_path)
+            if set(record) == {'schema_version', 'channel', 'request'}:
+                if record['schema_version'] != 1 or record['channel'] not in ('public', 'account'):
+                    raise OperationError('unknown_staging_files')
+                request = record['request']
+            else:
+                request = record  # Original public-helper record format.
+            required = {'adapter_id', 'item_id', 'kind', 'workspace_kind', 'operation_id', 'installed'}
+            if self.kind == 'learning': required.add('workspace_id')
+            if (not isinstance(request, dict) or set(request) != required or request['adapter_id'] != 'codex'
+                    or request['item_id'] != self.item or request['workspace_kind'] != self.kind
+                    or request['kind'] != ('module' if self.kind == 'learning' else 'skill')
+                    or request['operation_id'] != self.operation or request.get('workspace_id') != self.workspace
+                    or not isinstance(request['installed'], list) or len(request['installed']) > 50):
+                raise OperationError('unknown_staging_files')
+            for installed in request['installed']:
+                if not isinstance(installed, dict) or set(installed) != {'item_id', 'release_id'}:
+                    raise OperationError('unknown_staging_files')
+                _item(installed['item_id']); _uuid(installed['release_id'])
+        allowed = {'operation.json', '.released', 'local-request.json'} | {p['artifact_id'] for p in plan['packages']} | {p['artifact_id'] + '.zip' for p in plan['packages']}
         if set(p.name for p in self.stage.iterdir()) - allowed:
             raise OperationError('unknown_staging_files')
         # Check every archive before releasing ownership or deleting the journal.
@@ -523,6 +549,8 @@ class LocalOperation:
                     raise OperationError('invalid_record')
                 owner.unlink()
             released.rmdir()
+        if request_path.exists():
+            request_path.unlink()
         (self.stage / 'operation.json').unlink()
         self.stage.rmdir()
         _sync_dir(self.stage.parent)

@@ -2,6 +2,10 @@
 import fcntl, hashlib, json, os, pathlib, re
 from operations import _safe, _read, _atomic, _uuid, _item, OperationError, NAMESPACE
 from artifacts import validate_manifest, sha256_file
+import sync_state
+import workspace_location
+
+MAX_CHECKPOINT_LENGTH = 2000
 
 class GuestLearningState:
     def __init__(self, root):
@@ -20,6 +24,15 @@ class GuestLearningState:
             self.data = _read(self.path) if self.path.exists() else dict(schema_version=1, namespace=NAMESPACE, workspace_id=self.workspace,
                 profile={'display_name':None,'name_declined':False}, attempts={}, events={})
             self._validate()
+            if self.data['schema_version'] == 1:
+                sync_state.upgrade(self.data)
+                self._validate()
+            if self.data['schema_version'] == 2:
+                # Older records have no explicit teaching focus. Do not infer one from
+                # UUID order, installation order, or synthetic migration timestamps.
+                self.data['schema_version'] = 3
+                self.data['active_attempt_id'] = None
+                self._validate()
             return self
         except BaseException:
             os.close(self.fd); self.fd=None; raise
@@ -43,7 +56,10 @@ class GuestLearningState:
 
     def _validate(self):
         d=self.data
-        if set(d)!={'schema_version','namespace','workspace_id','profile','attempts','events'} or d['schema_version']!=1 or d['namespace']!=NAMESPACE or d['workspace_id']!=self.workspace:
+        fields = {'schema_version','namespace','workspace_id','profile','attempts','events'}
+        if d.get('schema_version') in (2,3): fields |= {'outbox', 'sync'}
+        if d.get('schema_version') == 3: fields.add('active_attempt_id')
+        if set(d)!=fields or d['schema_version'] not in (1,2,3) or d['namespace']!=NAMESPACE or d['workspace_id']!=self.workspace:
             raise OperationError('invalid_learning_record')
         self._profile(d['profile'])
         if not isinstance(d['attempts'],dict) or not isinstance(d['events'],dict) or len(d['attempts'])>100 or len(d['events'])>1000:
@@ -54,17 +70,27 @@ class GuestLearningState:
                 raise OperationError('invalid_learning_record')
             _item(a['item_id']); _uuid(a['release_id']);_item(a['lesson_id'])
             if type(a['revision']) is not int or a['revision']<1: raise OperationError('invalid_learning_record')
-            if a['state'] not in ('started','checkpoint','completed') or not isinstance(a['checkpoint'],str) or len(a['checkpoint'])>160:
+            if a['state'] not in ('started','checkpoint','completed') or not isinstance(a['checkpoint'],str) or len(a['checkpoint'])>MAX_CHECKPOINT_LENGTH:
                 raise OperationError('invalid_learning_record')
             if not isinstance(a['entrypoint'],str) or not a['entrypoint'].startswith('.fspm-pilot/modules/'+a['item_id']+'/'+a['release_id']+'/') or '..' in pathlib.PurePosixPath(a['entrypoint']).parts:
                 raise OperationError('invalid_learning_record')
         for identity,digest in d['events'].items():
             _uuid(identity)
             if not isinstance(digest,str) or not re.fullmatch('[a-f0-9]{64}',digest):raise OperationError('invalid_learning_record')
+        if d['schema_version'] in (2,3): sync_state.validate(d)
+        if d['schema_version'] == 3 and d['active_attempt_id'] is not None:
+            _uuid(d['active_attempt_id'])
+            if d['active_attempt_id'] not in d['attempts']: raise OperationError('invalid_learning_focus')
 
-    def _save(self, updated):
-        self._locked();previous=self.data;self.data=updated
-        try:self._validate();_atomic(self.path,self.data)
+    def _save(self, updated, adopting_replica=False):
+        self._locked()
+        if not adopting_replica:
+            workspace_location.require_current(self.root, self.workspace)
+        previous=self.data;self.data=updated
+        try:
+            self._validate()
+            if not adopting_replica: workspace_location.remember(self.root, self.workspace)
+            _atomic(self.path,self.data)
         except BaseException:self.data=previous;raise
 
     def snapshot(self):
@@ -78,9 +104,9 @@ class GuestLearningState:
         return dict(value)
 
     def record(self, attempt_id, item_id, lesson_id, event_id, state, checkpoint='', confirm_completed=False, expected_revision=0):
-        self._locked();_uuid(attempt_id);_uuid(event_id);_item(item_id);_item(lesson_id)
+        self._locked();workspace_location.require_current(self.root, self.workspace);_uuid(attempt_id);_uuid(event_id);_item(item_id);_item(lesson_id)
         if type(expected_revision) is not int or expected_revision<0: raise OperationError('invalid_checkpoint')
-        if state not in ('started','checkpoint','completed') or not isinstance(checkpoint,str) or len(checkpoint)>160 or any(ord(c)<32 for c in checkpoint):
+        if state not in ('started','checkpoint','completed') or not isinstance(checkpoint,str) or len(checkpoint)>MAX_CHECKPOINT_LENGTH or any(ord(c)<32 for c in checkpoint):
             raise OperationError('invalid_checkpoint')
         if type(confirm_completed) is not bool or (state=='completed')!=confirm_completed: raise OperationError('completion_confirmation_required')
         if any((self.root/'.fspm-pilot').glob('.fspm-pilot-lock-*')): raise OperationError('installation_in_progress')
@@ -109,4 +135,8 @@ class GuestLearningState:
         if len(self.data['events'])>=1000 or not old and len(self.data['attempts'])>=100:raise OperationError('learning_record_limit')
         updated=self.snapshot()
         updated['attempts'][attempt_id]=dict(item_id=item_id,release_id=release,lesson_id=lesson_id,entrypoint=entrypoint,state=state,checkpoint=checkpoint,revision=expected_revision+1)
-        updated['events'][event_id]=digest;self._save(updated);return 'accepted'
+        updated['active_attempt_id'] = attempt_id
+        updated['events'][event_id]=digest
+        updated['outbox'][event_id]=sync_state.entry(self.workspace, attempt_id, release, lesson_id, state,
+                                                   updated['sync']['account_id'])
+        self._save(updated);return 'accepted'

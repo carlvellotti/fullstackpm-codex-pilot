@@ -9,8 +9,10 @@ import pathlib
 import platform
 import re
 import socket
+import ssl
 import sys
 import time
+import datetime
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -18,7 +20,11 @@ import uuid
 
 from artifacts import sha256_file, validate_manifest
 from operations import LocalOperation, OperationError, NAMESPACE, _safe, _read, _atomic, _verify, _uuid, _item, _sync_dir
-from learning_state import GuestLearningState
+from learning_state import GuestLearningState, MAX_CHECKPOINT_LENGTH
+import sync_state
+import project_support
+import work_skills
+import workspace_location
 
 MAX_JSON = 2 * 1024 * 1024
 MAX_DOWNLOAD = 100 * 1024 * 1024
@@ -38,7 +44,13 @@ class PublicService:
         self.origin = origin.rstrip('/')
         self.host = parsed.hostname
         # Ignore inherited proxy configuration and refuse redirects. No account headers.
-        self.http = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+        handlers = [urllib.request.ProxyHandler({}), NoRedirect()]
+        if getattr(sys, 'frozen', False):
+            # The self-contained distribution must not depend on the builder's
+            # OpenSSL certificate path or a student's Python installation.
+            import certifi
+            handlers.append(urllib.request.HTTPSHandler(context=ssl.create_default_context(cafile=certifi.where())))
+        self.http = urllib.request.build_opener(*handlers)
 
     def call(self, name, arguments):
         body = json.dumps({'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
@@ -58,21 +70,64 @@ class PublicService:
             raise OperationError(code if re.fullmatch('[a-z_]{1,80}', code) else 'public_service_failed')
         return data
 
+    def exchange(self, ticket):
+        return self._exchange('/install/plan', ticket)
+
+    def sync(self, ticket, events):
+        return self._exchange('/progress/sync', ticket, {'events': events})
+
+    def _exchange(self, path, ticket, extra=None):
+        if not isinstance(ticket, str) or not re.fullmatch(r'[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}', ticket) or len(ticket) > 8192:
+            raise OperationError('download_grant_invalid')
+        request = urllib.request.Request(self.origin + path,
+            data=json.dumps({'ticket': ticket, **(extra or {})}).encode(), headers={'Content-Type': 'application/json'})
+        try:
+            with self.http.open(request, timeout=15) as response:
+                raw = response.read(MAX_JSON + 1)
+        except urllib.error.HTTPError as error:
+            code = (('sync_authorization_required' if path == '/progress/sync' else 'account_download_authorization_required') if error.code in (400, 401, 403) else
+                    'rate_limited' if error.code == 429 else 'service_unavailable')
+            raise OperationError(code) from None
+        if len(raw) > MAX_JSON:
+            raise OperationError('response_too_large')
+        value = json.loads(raw)
+        if not isinstance(value, dict) or 'error' in value:
+            raise OperationError('account_download_authorization_required')
+        return value
+
     def download(self, package, destination):
         """Exclusive download; preserve partial/unknown bytes on every failure."""
         url = urllib.parse.urlsplit(package['url'])
-        # This first prototype accepts only same-origin anonymous fixture artifacts.
+        # Both anonymous files and account-authorized files remain on the configured origin.
+        private = bool(re.fullmatch(r'/private-artifacts/[a-f0-9-]{36}\.zip', url.path))
         if (url.scheme != 'https' or url.username or url.password or url.fragment or url.query
                 or urllib.parse.urlunsplit((url.scheme, url.netloc, '', '', '')) != self.origin
                 or url.hostname not in package.get('allowed_download_hosts', [])
-                or not re.fullmatch(r'/artifacts/[a-f0-9-]+\.zip', url.path)
-                or package.get('url_expires_at') is not None):
+                or not (private or re.fullmatch(r'/artifacts/[a-f0-9-]+\.zip', url.path))):
+            raise OperationError('unsupported_download_origin')
+        headers = {}
+        if private:
+            grant = package.get('download_grant')
+            expiry = package.get('url_expires_at')
+            if not isinstance(grant, str) or len(grant) > 8192 or not re.fullmatch(r'[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}', grant):
+                raise OperationError('download_grant_invalid')
+            try:
+                expires = datetime.datetime.fromisoformat(expiry.replace('Z', '+00:00'))
+                if expires.tzinfo is None:
+                    raise ValueError()
+                remaining = expires.timestamp() - time.time()
+            except (AttributeError, ValueError, TypeError):
+                raise OperationError('download_grant_invalid') from None
+            if not 0 < remaining <= 305:
+                raise OperationError('account_download_authorization_required')
+            headers['X-FSPM-Download-Grant'] = grant
+        elif package.get('url_expires_at') is not None or package.get('download_grant') is not None:
             raise OperationError('unsupported_download_origin')
         size = package.get('bytes')
         if type(size) is not int or not 0 < size <= MAX_DOWNLOAD:
             raise OperationError('invalid_download_size')
         deadline = time.monotonic() + 30
-        with self.http.open(urllib.request.Request(package['url']), timeout=15) as response:
+        with self.http.open(urllib.request.Request(package['url'], headers=headers), timeout=15) as response:
             if response.headers.get('Content-Length') not in (None, str(size)):
                 raise OperationError('download_size_mismatch')
             fd = os.open(str(_safe(destination)), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
@@ -189,7 +244,7 @@ class LocalPilot:
     def status(self, root=None):
         data = {'status': 'ready', 'execution_host': socket.gethostname(), 'os': platform.system(),
                 'python': platform.python_version(), 'service_origin': self.service.origin,
-                'local_tools_version': 1, 'fixture_only': True}
+                'local_tools_version': 4, 'catalog_source': 'hosted_service'}
         if root is None:
             return data
         root = project_root(root)
@@ -198,15 +253,27 @@ class LocalPilot:
         if marker.exists():
             with GuestLearningState(root) as state:
                 snapshot = state.snapshot()
+            data['workspace_location'] = workspace_location.inspect(root, snapshot['workspace_id'])
             data['workspace'] = _read(marker)
-            data['learning'] = {k: v for k, v in snapshot.items() if k != 'events'}
+            data['learning'] = {k: v for k, v in snapshot.items() if k not in ('events', 'outbox', 'sync')}
+            data['sync'] = sync_state.summary(snapshot)
+            data['project_support'] = project_support.status(root, snapshot['workspace_id'])
             active = data['workspace'].get('active')
-            data['lesson_entrypoints'] = lesson_entrypoints(root, _item(active['item_id'])) if active else {}
-            attempts = {key: value for key, value in snapshot['attempts'].items()
-                        if active and value['item_id'] == active['item_id']}
+            attempts = snapshot['attempts']
+            selected = snapshot['active_attempt_id']
+            selection = 'recorded_focus' if selected else None
+            candidates = [key for key, value in attempts.items() if value['state'] != 'completed'] or list(attempts)
+            if selected is None and len(candidates) == 1:
+                selected = candidates[0]; selection = 'only_saved_candidate'
+            resumed = attempts.get(selected) if selected else None
+            data['resume'] = {'status': 'saved_attempt' if resumed else 'choose_attempt' if attempts else 'not_started',
+                              'attempt_id': selected, 'attempt': resumed, 'selection': selection,
+                              'candidate_attempt_ids': candidates}
+            teaching_item = resumed['item_id'] if resumed else active['item_id'] if active and not attempts else None
+            data['lesson_entrypoints'] = lesson_entrypoints(root, _item(teaching_item)) if teaching_item else {}
             data['lesson_state'] = {'installation': 'installed' if active else 'not_installed',
                                     'attempts': attempts,
-                                    'next_action': 'inspect_saved_attempts' if attempts else
+                                    'next_action': 'resume_saved_attempt' if resumed else 'choose_saved_attempt' if attempts else
                                     'record_started_before_teaching' if active else 'install_first_module'}
             data['learning_destination'] = {'status': 'existing', 'root': str(root)}
         else:
@@ -237,7 +304,7 @@ class LocalPilot:
         data['pending_operations'] = pending
         return data
 
-    def install(self, root, kind, item_id, operation_id=None):
+    def install(self, root, kind, item_id, operation_id=None, account=False, install_ticket=None):
         started = time.monotonic()
         root = project_root(root)
         _item(item_id)
@@ -272,62 +339,69 @@ class LocalPilot:
         with op:
             request_path = op.stage / 'local-request.json'
             if op.journal['phase'] == 'ready':
-                if request_path.exists():
-                    _safe(request_path).unlink()
                 entrypoint = op.journal['plan']['entrypoint']
                 op.finish()
-                return self._installed(root, item_id, operation_id, entrypoint, started, [])
-            if op.journal['phase'] == 'aborted':
-                raise OperationError('operation_aborted')
-            if op.journal['plan'] is None:
-                request = {'adapter_id': 'codex', 'item_id': item_id,
-                           'kind': 'module' if kind == 'learning' else 'skill', 'workspace_kind': kind,
-                           'operation_id': operation_id, 'installed': installed_releases(root) if kind == 'learning' else []}
-                if workspace:
-                    request['workspace_id'] = workspace
-                if request_path.exists():
-                    saved = _read(request_path)
-                    # Only a canonical, locally reconstructed request may leave this machine.
-                    if saved != request:
-                        raise OperationError('prepare_request_conflict')
-                else:
-                    _atomic(request_path, request)
-                plan = self.service.call('fspm_pilot_prepare_public_install', request)
+                downloaded = []
             else:
-                saved = op.journal['plan']
-                plan = self.service.call('fspm_pilot_refresh_public_downloads', {
-                    'plan_id': saved['plan_id'], 'operation_id': operation_id,
-                    'artifact_ids': [p['artifact_id'] for p in saved['packages']]})
-            if plan.get('item', {}).get('access') != 'public' or not plan.get('packages'):
-                raise OperationError('public_fixture_required')
-            if any(p.get('setup') != {'kind': 'none', 'prerequisites': []} for p in plan['packages']):
-                raise OperationError('manual_setup_not_supported')
-            op.bind_plan(plan)
-            downloaded = []
-            for package in plan['packages']:
-                artifact = _uuid(package['artifact_id'])
-                if artifact in op.journal['packages']:
-                    op.install(artifact)
-                    continue
-                archive = _safe(op.stage / (artifact + '.zip'))
-                if archive.exists():
-                    if not archive.is_file() or sha256_file(archive) != package['sha256']:
-                        raise OperationError('partial_download_requires_inspection')
+                if op.journal['phase'] == 'aborted':
+                    raise OperationError('operation_aborted')
+                record = _read(request_path) if request_path.exists() else None
+                account = account or install_ticket is not None or bool(record and record.get('channel') == 'account')
+                if op.journal['plan'] is None:
+                    request = {'adapter_id': 'codex', 'item_id': item_id,
+                               'kind': 'module' if kind == 'learning' else 'skill', 'workspace_kind': kind,
+                               'operation_id': operation_id, 'installed': installed_releases(root) if kind == 'learning' else []}
+                    if workspace:
+                        request['workspace_id'] = workspace
+                    if request_path.exists():
+                        saved = record.get('request', record)
+                        # Only a canonical, locally reconstructed request may leave this machine.
+                        if saved != request:
+                            raise OperationError('prepare_request_conflict')
+                    else:
+                        record = request
+                    _atomic(request_path, {'schema_version': 1, 'channel': 'account' if account else 'public', 'request': request})
+                    remote_tool = 'fspm_pilot_prepare_account_install' if account else 'fspm_pilot_prepare_public_install'
                 else:
-                    self.service.download(package, archive)
-                    downloaded.append(package['item_id'])
-                # The transaction helper performs inventory, path, identity and digest validation.
-                op.install(artifact, archive)
-            if request_path.exists():
-                request_path.unlink()
-                _sync_dir(op.stage)
-            entrypoint = op.journal['plan']['entrypoint']
-            op.finish()
+                    saved = op.journal['plan']
+                    request = {
+                        'plan_id': saved['plan_id'], 'operation_id': operation_id,
+                        'artifact_ids': [p['artifact_id'] for p in saved['packages']]}
+                    remote_tool = 'fspm_pilot_refresh_account_downloads' if account else 'fspm_pilot_refresh_public_downloads'
+                if account and install_ticket is None:
+                    return {'status': 'account_authorization_required', 'root': str(root), 'operation_id': operation_id,
+                            'account_tool': remote_tool, 'account_arguments': request,
+                            'next_action': 'call_account_tool_then_repeat_install_with_install_ticket'}
+                plan = self.service.exchange(install_ticket) if account else self.service.call(remote_tool, request)
+                if plan.get('item', {}).get('access') not in (('public', 'member') if account else ('public',)) or not plan.get('packages'):
+                    raise OperationError('authorized_plan_required')
+                if any(p.get('setup') != {'kind': 'none', 'prerequisites': []} for p in plan['packages']):
+                    raise OperationError('manual_setup_not_supported')
+                op.bind_plan(plan)
+                downloaded = []
+                for package in plan['packages']:
+                    artifact = _uuid(package['artifact_id'])
+                    if artifact in op.journal['packages']:
+                        op.install(artifact)
+                        continue
+                    archive = _safe(op.stage / (artifact + '.zip'))
+                    if archive.exists():
+                        if not archive.is_file() or sha256_file(archive) != package['sha256']:
+                            raise OperationError('partial_download_requires_inspection')
+                    else:
+                        self.service.download(package, archive)
+                        downloaded.append(package['item_id'])
+                    # The transaction helper performs inventory, path, identity and digest validation.
+                    op.install(artifact, archive)
+                entrypoint = op.journal['plan']['entrypoint']
+                op.finish()
         return self._installed(root, item_id, operation_id, entrypoint, started, downloaded)
 
     @staticmethod
     def _installed(root, item, operation, entrypoint, started, downloaded):
+        support = project_support.ensure(root) if (root / '.fspm-pilot/workspace.json').exists() else None
         return {'status': 'installed', 'item_id': item, 'root': str(root), 'operation_id': operation,
+                'project_support': support,
                 'entrypoint': str(root / entrypoint), 'downloaded_items': downloaded,
                 'lesson_entrypoints': lesson_entrypoints(root, item),
                 'elapsed_ms': round((time.monotonic() - started) * 1000),
@@ -339,10 +413,60 @@ class LocalPilot:
         with GuestLearningState(project_root(root)) as state:
             return {'status': 'saved_locally', 'profile': state.set_name(display_name, declined)}
 
+    def manage_work_skill(self, root, item_id, action, archive_id=None, expected_release_id=None, confirmed=False):
+        return work_skills.manage(project_root(root), item_id, action, archive_id, expected_release_id, confirmed)
+
+    def adopt_learning_replica(self, root, workspace_id, confirmed=False):
+        if confirmed is not True:
+            raise OperationError('explicit_replica_confirmation_required')
+        root = project_root(root)
+        with GuestLearningState(root) as state:
+            if _uuid(workspace_id) != state.workspace:
+                raise OperationError('workspace_conflict')
+            location = workspace_location.inspect(root, state.workspace)
+            if workspace_location.pending(root):
+                raise OperationError('pending_install_requires_original_location')
+            if location['status'] == 'current':
+                return {'status': 'already_current', 'workspace_id': state.workspace, 'sync': sync_state.summary(state.snapshot())}
+            updated = state.snapshot()
+            # Persist disconnect before rebinding. If binding fails, retries remain
+            # blocked by the old location and cannot send a copied pending batch.
+            updated['sync'].update(account_id=None, enabled=False, pending=None)
+            state._save(updated, adopting_replica=True)
+            workspace_location.remember(root, state.workspace)
+            return {'status': 'adopted_same_workspace', 'workspace_id': state.workspace,
+                    'sync': sync_state.summary(state.snapshot()), 'student_files_preserved': True,
+                    'next_action': 'continue_locally_tracking_requires_explicit_reconnection'}
+
     def checkpoint(self, root, **arguments):
         with GuestLearningState(project_root(root)) as state:
             accepted = state.record(**arguments)
-            return {'status': accepted, 'attempt': state.snapshot()['attempts'][arguments['attempt_id']]}
+            return {'status': accepted, 'attempt': state.snapshot()['attempts'][arguments['attempt_id']],
+                    'sync': sync_state.summary(state.snapshot())}
+
+    def sync_progress(self, root, action, account_id=None, confirmed=False, import_guest=False, sync_ticket=None):
+        root = project_root(root)
+        if action == 'prepare':
+            if sync_ticket is not None:
+                raise OperationError('invalid_arguments')
+            with GuestLearningState(root) as state:
+                return sync_state.prepare(state, account_id, confirmed, import_guest)
+        if action == 'disconnect':
+            if account_id is not None or import_guest or sync_ticket is not None:
+                raise OperationError('invalid_arguments')
+            with GuestLearningState(root) as state:
+                return sync_state.disconnect(state, confirmed)
+        if action != 'send' or account_id is not None or confirmed or import_guest or sync_ticket is None:
+            raise OperationError('invalid_arguments')
+        with GuestLearningState(root) as state:
+            workspace_location.require_current(root, state.workspace)
+            pending = state.snapshot()['sync']['pending']
+            if pending is None:
+                raise OperationError('sync_batch_required')
+        # Do not hold the learning lock while the network is unavailable. Checkpoints remain local.
+        result = self.service.sync(sync_ticket, pending['events'])
+        with GuestLearningState(root) as state:
+            return sync_state.acknowledge(state, pending, result)
 
     def cancel(self, root, kind, item_id, operation_id, confirmed):
         if confirmed is not True:
@@ -382,19 +506,31 @@ def tool(name, description, properties, required, read_only=False):
 
 TOOLS = [
     tool('fspm_pilot_local_status', 'Read local runtime, learning destination eligibility, existing learning subfolders, guest attempts and pending installs. status=ready means the tool is available; inspect learning_destination before installing lessons. No network or writes.', {'root': ROOT}, [], True),
-    tool('fspm_pilot_install', 'Install or resume one public synthetic module or work skill in the explicitly selected local project. Downloads and verifies with bundled code; preserves edits. No CLI or runtime installation. Does not complete a lesson.',
-         {'root': ROOT, 'kind': field(enum=['learning', 'work']), 'item_id': ID, 'operation_id': UUID}, ['root', 'kind', 'item_id']),
+    tool('fspm_pilot_install', 'Install or resume one module/work skill in the selected local project. Public installs need no account. For protected material use account=true to obtain exact account-tool arguments, then repeat with its short-lived install_ticket. Never supply OAuth tokens. Verifies packages and preserves edits. Does not complete lessons.',
+         {'root': ROOT, 'kind': field(enum=['learning', 'work']), 'item_id': ID, 'operation_id': UUID,
+          'account': field('boolean'), 'install_ticket': field(minLength=1, maxLength=8192)}, ['root', 'kind', 'item_id']),
     tool('fspm_pilot_set_name', 'Remember a learner-offered name or an explicit decline locally in an initialized learning folder. Supply a name OR declined=true. Never infer a name or upload it.',
          {'root': ROOT, 'display_name': field(minLength=1, maxLength=80), 'declined': field('boolean')}, ['root']),
-    tool('fspm_pilot_checkpoint', 'Save a local teaching checkpoint. For a new attempt FIRST record state=started with expected_revision=0 BEFORE asking the first lesson question. Reuse that attempt_id and returned revision for checkpoints/completion; use a new event_id per event. Completion requires every lesson requirement and explicit attestation. No uploads.',
+    tool('fspm_pilot_checkpoint', 'Save a local teaching checkpoint. For a new attempt FIRST record state=started with expected_revision=0 BEFORE asking the first lesson question. Reuse that attempt_id and returned revision for checkpoints/completion; use a new event_id per event. Keep checkpoint notes within 2000 characters. Completion requires every lesson requirement and explicit attestation. No uploads.',
          {'root': ROOT, 'attempt_id': UUID, 'item_id': ID, 'lesson_id': ID, 'event_id': UUID,
-          'state': field(enum=['started', 'checkpoint', 'completed']), 'checkpoint': field(maxLength=160),
+          'state': field(enum=['started', 'checkpoint', 'completed']), 'checkpoint': field(maxLength=MAX_CHECKPOINT_LENGTH, description='Local-only continuation notes, at most 2000 characters. Record the current lesson step, learner decisions, and next participation point; do not duplicate lesson text.'),
           'confirm_completed': field('boolean'), 'expected_revision': field('integer', minimum=0)},
          ['root', 'attempt_id', 'item_id', 'lesson_id', 'event_id', 'state', 'expected_revision']),
     tool('fspm_pilot_cancel_install', 'Only after the user explicitly requests cancellation: archive this pending operation, preserving every staged and published byte. Never use as automatic error cleanup.',
          {'root': ROOT, 'kind': field(enum=['learning', 'work']), 'item_id': ID, 'operation_id': UUID,
-          'confirmed': field('boolean')}, ['root', 'kind', 'item_id', 'operation_id', 'confirmed']),
+         'confirmed': field('boolean')}, ['root', 'kind', 'item_id', 'operation_id', 'confirmed']),
+    tool('fspm_pilot_sync_progress', 'Optional account progress: prepare a durable batch using account_id from the authenticated profile tool; first enable and each guest import require explicit user consent (confirmed=true). Send with the account tool\'s sync_ticket. Never pass OAuth credentials. Uploads event identifiers and states only, never names, notes or paths. Disconnect stops local syncing and preserves all progress.',
+         {'root': ROOT, 'action': field(enum=['prepare', 'send', 'disconnect']),
+          'account_id': field(pattern=r'^[a-f0-9]{64}$'), 'confirmed': field('boolean'),
+          'import_guest': field('boolean'), 'sync_ticket': field(minLength=1, maxLength=8192)}, ['root', 'action']),
+    tool('fspm_pilot_adopt_learning_replica', 'Only after the learner confirms this moved/copied folder should continue the SAME learning workspace: preserve workspace/attempt IDs and files, disconnect local tracking, clear only the copied pending sync batch, and bind this location. Use workspace_id from status and confirmed=true. Does not create an independent course or upload anything. Pending installations must be recovered at their original location first.',
+         {'root': ROOT, 'workspace_id': UUID, 'confirmed': field('boolean')}, ['root', 'workspace_id', 'confirmed']),
+    tool('fspm_pilot_manage_work_skill', 'Inspect a namespaced workplace skill and its archives. Only for a user-requested removal or update: archive deactivates the skill while preserving every file outside skill discovery. Restore reactivates that exact archive only if its destination is empty. For changes use confirmed=true, expected_release_id from inspect, and a stable archive_id UUID; retry the same identity after interruption. Never use in a learning folder. No network or permanent deletion.',
+         {'root': ROOT, 'item_id': ID, 'action': field(enum=['inspect', 'archive', 'restore']),
+          'archive_id': UUID, 'expected_release_id': UUID, 'confirmed': field('boolean')}, ['root', 'item_id', 'action']),
 ]
+# Deactivation/restoration changes which instructions Codex can load, even though bytes survive.
+next(t for t in TOOLS if t['name'] == 'fspm_pilot_manage_work_skill')['annotations']['destructiveHint'] = True
 
 
 def validate_arguments(schema, arguments):
@@ -425,7 +561,7 @@ def dispatch(pilot, request):
         version = requested if requested in ('2025-03-26', '2025-06-18', '2025-11-25') else '2025-11-25'
         return result({'protocolVersion': version, 'capabilities': {'tools': {}},
                        'serverInfo': {'name': 'fullstackpm-pilot-local', 'version': '0.1.0'},
-                       'instructions': 'Use bundled local tools for pilot installs and guest state; never execute Python from Markdown. Paths refer to this server host. Require an explicitly selected project. Hosted tools provide public discovery. All materials are synthetic; original FSPM is untouched.'})
+                       'instructions': 'Use bundled local tools for pilot installs and learning state; never execute Python from Markdown. Paths refer to this server host. Require an explicitly selected project. The hosted catalog identifies available content and whether it is synthetic. Original FSPM is untouched.'})
     if method == 'ping':
         return result({})
     if method == 'tools/list':
@@ -437,10 +573,14 @@ def dispatch(pilot, request):
         definition = next((t for t in TOOLS if t['name'] == name), None)
         if definition is None:
             raise OperationError('unknown_tool')
+        if name == 'fspm_pilot_checkpoint' and isinstance(arguments, dict) and isinstance(arguments.get('checkpoint'), str) and len(arguments['checkpoint']) > MAX_CHECKPOINT_LENGTH:
+            raise OperationError('checkpoint_too_long')
         validate_arguments(definition['inputSchema'], arguments)
         function = {'fspm_pilot_local_status': pilot.status, 'fspm_pilot_install': pilot.install,
                     'fspm_pilot_set_name': pilot.set_name, 'fspm_pilot_checkpoint': pilot.checkpoint,
-                    'fspm_pilot_cancel_install': pilot.cancel}[name]
+                    'fspm_pilot_cancel_install': pilot.cancel, 'fspm_pilot_sync_progress': pilot.sync_progress,
+                    'fspm_pilot_manage_work_skill': pilot.manage_work_skill,
+                    'fspm_pilot_adopt_learning_replica': pilot.adopt_learning_replica}[name]
         data = function(**arguments)
         return result({'content': [{'type': 'text', 'text': json.dumps(data)}], 'structuredContent': data})
     except Exception as error:
@@ -451,17 +591,25 @@ def dispatch(pilot, request):
         elif isinstance(error, BlockingIOError):
             code = 'destination_busy'
         elif isinstance(error, urllib.error.HTTPError):
-            code = 'http_request_failed'
+            code = 'rate_limited' if error.code == 429 else 'http_request_failed'
         elif isinstance(error, (urllib.error.URLError, TimeoutError)):
             code = 'network_unavailable'
         else:
             code = 'local_operation_failed'
         data = {'status': 'error', 'code': code, 'next_action': 'inspect_local_status_preserve_existing_files'}
+        if code == 'checkpoint_too_long':
+            data.update(next_action='shorten_checkpoint_and_retry_same_event', max_characters=MAX_CHECKPOINT_LENGTH, saved=False)
+        elif code == 'rate_limited':
+            # Edge 429s may have an HTML body and no Retry-After. Do not expose
+            # that body or create a new operation in response to throttling.
+            retry = error.headers.get('Retry-After', '') if isinstance(error, urllib.error.HTTPError) and error.headers else ''
+            seconds = int(retry) if re.fullmatch(r'[0-9]{1,3}', retry) and 1 <= int(retry) <= 600 else 60
+            data.update(next_action='wait_then_retry_same_operation', retry_after_seconds=seconds)
         return result({'content': [{'type': 'text', 'text': json.dumps(data)}], 'structuredContent': data, 'isError': True})
 
 
-def main():
-    config = json.loads((pathlib.Path(__file__).parent / 'service.json').read_text())
+def main(service_file=None):
+    config = json.loads((service_file or (pathlib.Path(__file__).parent / 'service.json')).read_text())
     pilot = LocalPilot(PublicService(config['origin']))
     while True:
         line = sys.stdin.buffer.readline(256 * 1024 + 1)
